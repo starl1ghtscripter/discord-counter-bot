@@ -43,7 +43,7 @@ app.post("/run", async (req, res) => {
 
     // 3. Update channel name
     await channel.setName(
-      `executions: ${updated}`
+      `executions: ${updated.toLocaleString("en-US")}`
     );
 
     console.log("Updated counter:", updated);
@@ -67,7 +67,7 @@ app.post("/set", async (req, res) => {
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
 
     await channel.setName(
-      `executions: ${value}`
+      `executions: ${value.toLocaleString("en-US")}`
     );
 
     res.json({ success: true, counter: value });
