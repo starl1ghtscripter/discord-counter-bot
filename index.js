@@ -19,38 +19,58 @@ app.get("/", (req, res) => {
 
 // ================= ROBLOX API =================
 
+function parseCounter(name) {
+  if (!name) return 0;
+
+  const match = name.match(/([\d,]+)/);
+  if (!match) return 0;
+
+  return parseInt(match[1].replace(/,/g, ""), 10);
+}
+
 // ➕ Add +1
 app.post("/run", async (req, res) => {
+  console.log("RUN endpoint triggered");
+
   try {
-    console.log("RUN endpoint triggered");
-    counter++;
-
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`executions: ${counter}`);
 
-    res.json({ success: true, counter });
+    // 1. Read current number from channel name
+    const current = parseCounter(channel.name);
+
+    // 2. Increment
+    const updated = current + 1;
+
+    // 3. Update channel name
+    await channel.setName(
+      `executions: ${updated.toLocaleString("en-US")}`
+    );
+
+    console.log("Updated counter:", updated);
+
+    res.json({ success: true, counter: updated });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
+    console.error("ERROR:", err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // 🔢 Set counter
 app.post("/set", async (req, res) => {
   try {
-    console.log("SET endpoint triggered");
     const value = req.body.value;
 
     if (typeof value !== "number") {
       return res.status(400).json({ error: "value must be a number" });
     }
 
-    counter = value;
-
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`executions: ${counter}`);
 
-    res.json({ success: true, counter });
+    await channel.setName(
+      `executions: ${value.toLocaleString("en-US")}`
+    );
+
+    res.json({ success: true, counter: value });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false });
