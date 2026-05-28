@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 // ➕ Add +1
 app.post("/run", async (req, res) => {
   try {
+    console.log("RUN endpoint triggered");
     counter++;
 
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
@@ -37,6 +38,7 @@ app.post("/run", async (req, res) => {
 // 🔢 Set counter
 app.post("/set", async (req, res) => {
   try {
+    console.log("SET endpoint triggered");
     const value = req.body.value;
 
     if (typeof value !== "number") {
