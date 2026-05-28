@@ -25,7 +25,7 @@ app.post("/run", async (req, res) => {
     counter++;
 
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`executions: ${counter}`);
+    await channel.setName(`executions: ${counter.toLocaleString("en-US")}`);
 
     res.json({ success: true, counter });
   } catch (err) {
@@ -46,7 +46,7 @@ app.post("/set", async (req, res) => {
     counter = value;
 
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`executions: ${counter}`);
+    await channel.setName(`executions: ${counter.toLocaleString("en-US")}`);
 
     res.json({ success: true, counter });
   } catch (err) {
