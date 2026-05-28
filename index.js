@@ -33,11 +33,31 @@ app.post("/run", async (req, res) => {
     counter++;
 
     const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`executions: ${counter}`);
+    await channel.setName(`🔊 Executions: ${counter}`);
 
     res.json({ success: true, counter });
   } catch (err) {
-    console.error("Error:", err);
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+app.post("/set", async (req, res) => {
+  try {
+    const newValue = req.body.value;
+
+    if (typeof newValue !== "number") {
+      return res.status(400).json({ error: "Value must be a number" });
+    }
+
+    counter = newValue;
+
+    const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
+    await channel.setName(`🔊 Executions: ${counter}`);
+
+    res.json({ success: true, counter });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false });
   }
 });
