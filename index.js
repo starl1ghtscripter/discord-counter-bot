@@ -3,17 +3,66 @@ require("dotenv").config();
 const express = require("express");
 const { Client, GatewayIntentBits } = require("discord.js");
 
-// ---------------- EXPRESS SERVER ----------------
+// ================= EXPRESS SERVER =================
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+let counter = 0;
 
+// Replace with your voice channel ID
+const VOICE_CHANNEL_ID = "1509597107949146143";
+
+// Health check (Render uses this to confirm it's alive)
 app.get("/", (req, res) => {
   res.send("Bot is alive");
 });
 
-// ---------------- DISCORD BOT ----------------
+// ================= ROBLOX API =================
+
+// ➕ Add +1
+app.post("/run", async (req, res) => {
+  try {
+    counter++;
+
+    const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
+    await channel.setName(`executions: ${counter}`);
+
+    res.json({ success: true, counter });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// 🔢 Set counter
+app.post("/set", async (req, res) => {
+  try {
+    const value = req.body.value;
+
+    if (typeof value !== "number") {
+      return res.status(400).json({ error: "value must be a number" });
+    }
+
+    counter = value;
+
+    const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
+    await channel.setName(`executions: ${counter}`);
+
+    res.json({ success: true, counter });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// ================= START SERVER =================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Web server running on port " + PORT);
+});
+
+// ================= DISCORD BOT =================
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -22,55 +71,8 @@ const client = new Client({
   ],
 });
 
-let counter = 0;
-
-// 🔧 PUT YOUR VOICE CHANNEL ID HERE
-const VOICE_CHANNEL_ID = "1509597107949146143";
-
-// ---------------- ROBLOX ENDPOINT ----------------
-app.post("/run", async (req, res) => {
-  try {
-    counter++;
-
-    const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`🔊 Executions: ${counter}`);
-
-    res.json({ success: true, counter });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
-  }
-});
-
-app.post("/set", async (req, res) => {
-  try {
-    const newValue = req.body.value;
-
-    if (typeof newValue !== "number") {
-      return res.status(400).json({ error: "Value must be a number" });
-    }
-
-    counter = newValue;
-
-    const channel = await client.channels.fetch(VOICE_CHANNEL_ID);
-    await channel.setName(`🔊 Executions: ${counter}`);
-
-    res.json({ success: true, counter });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
-  }
-});
-
-// ---------------- START SERVER ----------------
-app.listen(PORT, () => {
-  console.log(`Web server running on port ${PORT}`);
-});
-
-// ---------------- BOT READY ----------------
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-// ---------------- LOGIN BOT ----------------
 client.login(process.env.TOKEN);
